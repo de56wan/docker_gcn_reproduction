@@ -1,6 +1,11 @@
 from __future__ import division
 from __future__ import print_function
 
+import datetime  # 用于获取当前时间
+import matplotlib
+matplotlib.use('Agg') # 这一行必须在 import pyplot 之前
+import matplotlib.pyplot as plt
+
 import time
 import tensorflow as tf
 
@@ -75,6 +80,12 @@ sess.run(tf.global_variables_initializer())
 
 cost_val = []
 
+# 准备记录数据的列表
+train_loss_list = []
+train_acc_list = []
+val_loss_list = []
+val_acc_list = []
+
 # Train model
 for epoch in range(FLAGS.epochs):
 
@@ -94,10 +105,71 @@ for epoch in range(FLAGS.epochs):
     print("Epoch:", '%04d' % (epoch + 1), "train_loss=", "{:.5f}".format(outs[1]),
           "train_acc=", "{:.5f}".format(outs[2]), "val_loss=", "{:.5f}".format(cost),
           "val_acc=", "{:.5f}".format(acc), "time=", "{:.5f}".format(time.time() - t))
+    
+    # 记录当前 epoch 的数据
+    # outs[1] 是训练集 Loss，outs[2] 是训练集 Accuracy
+    train_loss_list.append(outs[1])
+    train_acc_list.append(outs[2])
+    # cost 和 acc 是上面 evaluate 函数算出来的验证集结果
+    val_loss_list.append(cost)
+    val_acc_list.append(acc)
 
     if epoch > FLAGS.early_stopping and cost_val[-1] > np.mean(cost_val[-(FLAGS.early_stopping+1):-1]):
         print("Early stopping...")
         break
+
+# ======================== 进阶记录方案 ========================
+# 1. 提取核心超参数 (这些都在 train.py 顶部定义过)
+ds = FLAGS.dataset
+lr = FLAGS.learning_rate
+hid = FLAGS.hidden1
+ep = FLAGS.epochs
+wd = FLAGS.weight_decay
+
+# 2. 生成时间戳
+timestamp = datetime.datetime.now().strftime("%m%d_%H%M%S")
+
+# 3. 构造文件名 (包含数据集、学习率、隐藏层、时间)
+# 例子：gcn_cora_LR0.01_HID16_0305_1430.png
+filename = "gcn_{}_LR{}_HID{}_{}.png".format(ds, lr, hid, timestamp)
+
+# 4. 开始绘图
+plt.figure(figsize=(12, 6))
+
+# 设置总标题：把所有重要参数都写在图片最上方
+main_title = "GCN Experiment: Dataset={}\n(LR={}, Hidden={}, Epochs={}, WeightDecay={})".format(
+    ds.upper(), lr, hid, ep, wd
+)
+plt.suptitle(main_title, fontsize=14, fontweight='bold')
+
+# --- 子图1：Loss ---
+plt.subplot(1, 2, 1)
+plt.plot(train_loss_list, label='Train Loss', color='#1f77b4', linewidth=2)
+plt.plot(val_loss_list, label='Val Loss', color='#ff7f0e', linestyle='--')
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+
+# --- 子图2：Accuracy ---
+plt.subplot(1, 2, 2)
+plt.plot(train_acc_list, label='Train Acc', color='#2ca02c', linewidth=2)
+plt.plot(val_acc_list, label='Val Acc', color='#d62728', linestyle='--')
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+
+# 5. 自动调整布局，防止标题重叠
+plt.tight_layout(rect=[0, 0.03, 1, 0.95]) 
+
+# 6. 保存到 D:\Research\gcn
+plt.savefig(filename, dpi=300) # dpi=300 让图片更清晰，适合放进论文或报告
+print("\n" + "="*50)
+print("🚀 实验成功完成！")
+print("📊 结果图表：{}".format(filename))
+print("="*50)
+# ============================================================
 
 print("Optimization Finished!")
 
