@@ -75,6 +75,7 @@ def evaluate(features, support, labels, mask, placeholders):
     return outs_val[0], outs_val[1], (time.time() - t_test)
 
 
+
 # Init variables
 sess.run(tf.global_variables_initializer())
 
