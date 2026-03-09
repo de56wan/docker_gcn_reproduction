@@ -1,3 +1,8 @@
+# Before Use
+Since this project is a bit old (2017), we need to use **Docker** to set up a suitable Linux environment. 
+
+The **tensorflow/tensorflow:1.15.4-py3** image is recommended.
+
 # Graph Convolutional Networks
 
 This is a TensorFlow implementation of Graph Convolutional Networks for the task of (semi-supervised) classification of nodes in a graph, as described in our paper:
