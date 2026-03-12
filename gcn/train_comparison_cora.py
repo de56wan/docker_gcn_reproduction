@@ -150,6 +150,20 @@ if __name__ == '__main__':
     # 定义你想对比的不同超参数组合
     experiments = [
         {
+            'name': 'LR=0.01, HID=8',  # 实验名称，用于图例
+            'config': {
+                'dataset': fixed_dataset,
+                'model': 'gcn',
+                'learning_rate': 0.01,
+                'epochs': 200,
+                'hidden1': 8,
+                'dropout': 0.5,
+                'weight_decay': 5e-4,
+                'early_stopping': 10,
+                'max_degree': 3
+            }
+        },
+        {
             'name': 'LR=0.01, HID=16',  # 实验名称，用于图例
             'config': {
                 'dataset': fixed_dataset,
@@ -184,7 +198,7 @@ if __name__ == '__main__':
                 'model': 'gcn',
                 'learning_rate': 0.1,
                 'epochs': 200,
-                'hidden1': 64,
+                'hidden1': 16,
                 'dropout': 0.5,
                 'weight_decay': 5e-4,
                 'early_stopping': 10,
